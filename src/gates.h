@@ -4,23 +4,15 @@
 #include <arrayfire.h>
 
 namespace Gates {
-    af::array X;
-
-    af::array Y;
-
-    af::array Z;
-
-    af::array H;
-
-    af::array Id;
-
-    af::array S;
-
-    af::array SDagger;
-
-    af::array T;
-
-    af::array TDagger;
+    extern af::array X;
+    extern af::array Y;
+    extern af::array Z;
+    extern af::array H;
+    extern af::array Id;
+    extern af::array S;
+    extern af::array SDagger;
+    extern af::array T;
+    extern af::array TDagger;
 }
 
 #endif
