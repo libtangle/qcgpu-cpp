@@ -1,31 +1,60 @@
+#include <stdio.h>
 #include <arrayfire.h>
-#include <cstdio>
-#include <cstdlib>
+#include <complex>
+using namespace af;
 
-int main(int argc, char *argv[])
-{
-    try {
-        // Select a device and display arrayfire info
-        int device = argc > 1 ? atoi(argv[1]) : 0;
-        af::setDevice(device);
-        af::info();
-        printf("Running QR InPlace\n");
-        af::array in = af::randu(5, 8);
-        af_print(in);
-        af::array qin = in.copy();
-        af::array tau;
-        qrInPlace(tau, qin);
-        af_print(qin);
-        af_print(tau);
-        printf("Running QR with Q and R factorization\n");
-        af::array q, r;
-        qr(q, r, tau, in);
-        af_print(q);
-        af_print(r);
-        af_print(tau);
-    } catch (af::exception& e) {
-        fprintf(stderr, "%s\n", e.what());
-        throw;
+namespace Gates {
+
+    // Pauli-X / Not Gate
+    float X_coef[] = {
+        0, 0, 1, 0,
+        1, 0, 0, 0
+    };
+    
+    static array X = array(2, 2, (cfloat*) X_coef);
+
+    // Pauli-Y Gate
+    float Y_coef[] = {
+        0, 0, 0, -1,
+        0, 1, 0, 0
+    };
+
+    static array Y = array(2, 2, (cfloat*) Y_coef);
+
+
+    // Pauli-Z Gate
+    float Z_coef[] = {
+        0, 0, 1, 0,
+        1, 0, 0, 0
+    };
+
+    static array Z = array(2, 2, (cfloat*) Z_coef);
+}
+
+// TODO: GPU ACCELERATE THIS FUNCTION
+array kron(array A, array B) {
+    int m = A.dims(0);
+    int n = A.dims(1);
+    int p = B.dims(0);
+    int q = B.dims(1);
+    dim4 dims(m * p, n * q);
+    
+    array K(dims, c32); 
+
+    for (int i = 0; i < m * p; i++) {
+        for (int j = 0; j < n * q; j++) {
+            K(i, j) = A(floor(i / p), floor(j / p)) * B(i % p, j % q);
+        }  
     }
+
+    return K;
+}
+
+
+int main(int argc, char **argv) {
+    af::info();
+
+    af_print(kron(Gates::X, Gates::Y));
+
     return 0;
 }

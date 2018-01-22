@@ -43,6 +43,15 @@ different projects created for CPU, CUDA and OpenCL. Setting one of these
 projects as start project and then running it will run the example with the
 specified backend.
 
+## Notes
+
+The minimum filling time of a matrix with (n_1 * n_2) X (m_1 * m_2) is O(n_1 * n_2 * m_1 * m_2). 
+This is relevent to the kronecker product.
+Some other considerations for the future development of this software, and the speedup of this function is:
+
+* Parallelize
+* Store on the fly (i.e. store M as kron of A and B, and calculate only when single element is needed)
+* Could Use ArrayFire Tile Function
 
 ## License
 
