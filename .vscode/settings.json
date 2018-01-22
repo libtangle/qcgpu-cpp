@@ -5,6 +5,7 @@
     "array": "cpp",
     "valarray": "cpp",
     "locale": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "complex": "cpp"
   }
 }

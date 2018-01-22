@@ -31,12 +31,53 @@ namespace Gates {
 
     static array Z = array(2, 2, (cfloat*) Z_coef);
 
+    // Hadamard Gate
     float H_coef[] = {
         1, 0, 1, 0,
         1, 0, -1, 0
     };
 
     static array H = (1 / sqrt(2)) * array(2, 2, (cfloat*) H_coef);
+
+    // Identity Gate
+    float Id_coef[] = {
+        1, 0, 0, 0,
+        0, 0, 1, 0
+    };
+
+    static array Id = array(2, 2, (cfloat*) Id_coef);
+
+    // S Gate
+    float S_coef[] = {
+        1, 0, 0, 0,
+        0, 0, 0, 1
+    };
+
+    static array S = array(2, 2, (cfloat*) S_coef);
+
+    // S-Dagger Gate
+    float SDagger_coef[] = {
+        1, 0, 0, 0,
+        0, 0, 0, -1
+    };
+
+    static array SDagger = array(2, 2, (cfloat*) SDagger_coef);
+
+    // T / Pi over 8 Gate
+    float T_coef[] = {
+        1, 0, 0, 0,
+        0, 0, 0.7071067811865475244008443621048490393, 0.7071067811865475244008443621048490393
+    };
+
+    static array T = array(2, 2, (cfloat*) T_coef);
+
+    // T-Dagger Gate
+    float TDagger_coef[] = {
+        1, 0, 0, 0,
+        0, 0, 0.7071067811865475244008443621048490393, -0.7071067811865475244008443621048490393
+    };
+
+    static array TDagger = array(2, 2, (cfloat*) TDagger_coef);
 }
 
 
@@ -71,6 +112,5 @@ int main(int argc, char **argv) {
     array state = array(2, (cfloat*) state_coef);
 
     af_print(matmul(Gates::X, state));
-
     return 0;
 }
