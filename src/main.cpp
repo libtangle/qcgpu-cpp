@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <arrayfire.h>
+#include <math.h>
 #include <complex>
 using namespace af;
 
@@ -29,7 +30,15 @@ namespace Gates {
     };
 
     static array Z = array(2, 2, (cfloat*) Z_coef);
+
+    float H_coef[] = {
+        1, 0, 1, 0,
+        1, 0, -1, 0
+    };
+
+    static array H = (1 / sqrt(2)) * array(2, 2, (cfloat*) H_coef);
 }
+
 
 // TODO: GPU ACCELERATE THIS FUNCTION
 array kron(array A, array B) {
@@ -54,7 +63,14 @@ array kron(array A, array B) {
 int main(int argc, char **argv) {
     af::info();
 
-    af_print(kron(Gates::X, Gates::Y));
+    float state_coef[] {
+        1, 0,
+        0, 0
+    };
+
+    array state = array(2, (cfloat*) state_coef);
+
+    af_print(matmul(Gates::X, state));
 
     return 0;
 }

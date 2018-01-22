@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "*.ipp": "cpp",
+    "__tuple": "cpp",
+    "array": "cpp",
+    "valarray": "cpp",
+    "locale": "cpp",
+    "string": "cpp"
+  }
+}
