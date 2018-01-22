@@ -53,6 +53,8 @@ Some other considerations for the future development of this software, and the s
 * Store on the fly (i.e. store M as kron of A and B, and calculate only when single element is needed)
 * Could Use ArrayFire Tile Function
 
+Can also max at 30 qubits, or the number storage will have to be changed
+
 ## License
 
 This software is licensed under the MIT licence (see `LICENSE.md`)

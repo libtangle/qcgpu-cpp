@@ -1,116 +1,50 @@
-#include <stdio.h>
 #include <arrayfire.h>
-#include <math.h>
-#include <complex>
+
+#include "kron.h"
+#include "gates.h"
+
 using namespace af;
 
-namespace Gates {
+class QuantumRegister {
+    private:
+       array amplitudes;
+       bool measured = false;
+    public:
+        QuantumRegister(int numQubits) {
+            // The number of amplitudes needed is 2^n = 2 << (n - 1),
+            // Where N is the number of qubits. The constant(0, n) function
+            // Creates an array of n 0s
+            amplitudes = constant(0, 2 << (numQubits - 1), c32);
+            // Set the probability of getting all zeros when measured to 1
+            amplitudes(0) = 1;
+        }
 
-    // Pauli-X / Not Gate
-    float X_coef[] = {
-        0, 0, 1, 0,
-        1, 0, 0, 0
-    };
-    
-    static array X = array(2, 2, (cfloat*) X_coef);
+        void applyGate(array gate) {
+            amplitudes = matmul(gate, amplitudes);
+        }
 
-    // Pauli-Y Gate
-    float Y_coef[] = {
-        0, 0, 0, -1,
-        0, 1, 0, 0
-    };
+        array measure() {
+            array probabilities = pow(abs(amplitudes), 2);
+            af_print(probabilities);
 
-    static array Y = array(2, 2, (cfloat*) Y_coef);
+            return probabilities;
+        }
+};
 
+void run() {
+    QuantumRegister q(20);
+    //q.applyGate(Gates::H);
 
-    // Pauli-Z Gate
-    float Z_coef[] = {
-        0, 0, 1, 0,
-        1, 0, 0, 0
-    };
+    q.measure();
 
-    static array Z = array(2, 2, (cfloat*) Z_coef);
-
-    // Hadamard Gate
-    float H_coef[] = {
-        1, 0, 1, 0,
-        1, 0, -1, 0
-    };
-
-    static array H = (1 / sqrt(2)) * array(2, 2, (cfloat*) H_coef);
-
-    // Identity Gate
-    float Id_coef[] = {
-        1, 0, 0, 0,
-        0, 0, 1, 0
-    };
-
-    static array Id = array(2, 2, (cfloat*) Id_coef);
-
-    // S Gate
-    float S_coef[] = {
-        1, 0, 0, 0,
-        0, 0, 0, 1
-    };
-
-    static array S = array(2, 2, (cfloat*) S_coef);
-
-    // S-Dagger Gate
-    float SDagger_coef[] = {
-        1, 0, 0, 0,
-        0, 0, 0, -1
-    };
-
-    static array SDagger = array(2, 2, (cfloat*) SDagger_coef);
-
-    // T / Pi over 8 Gate
-    float T_coef[] = {
-        1, 0, 0, 0,
-        0, 0, 0.7071067811865475244008443621048490393, 0.7071067811865475244008443621048490393
-    };
-
-    static array T = array(2, 2, (cfloat*) T_coef);
-
-    // T-Dagger Gate
-    float TDagger_coef[] = {
-        1, 0, 0, 0,
-        0, 0, 0.7071067811865475244008443621048490393, -0.7071067811865475244008443621048490393
-    };
-
-    static array TDagger = array(2, 2, (cfloat*) TDagger_coef);
+    return;
 }
-
-
-// TODO: GPU ACCELERATE THIS FUNCTION
-array kron(array A, array B) {
-    int m = A.dims(0);
-    int n = A.dims(1);
-    int p = B.dims(0);
-    int q = B.dims(1);
-    dim4 dims(m * p, n * q);
-    
-    array K(dims, c32); 
-
-    for (int i = 0; i < m * p; i++) {
-        for (int j = 0; j < n * q; j++) {
-            K(i, j) = A(floor(i / p), floor(j / p)) * B(i % p, j % q);
-        }  
-    }
-
-    return K;
-}
-
 
 int main(int argc, char **argv) {
-    af::info();
+    // af::info();
+    //QuantumRegister q(2);
+    //q.measure();
+    af_print(kron(Gates::X, Gates::Id));
 
-    float state_coef[] {
-        1, 0,
-        0, 0
-    };
-
-    array state = array(2, (cfloat*) state_coef);
-
-    af_print(matmul(Gates::X, state));
     return 0;
 }
