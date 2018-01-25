@@ -1,18 +1,20 @@
 #include <arrayfire.h>
 #include <complex>
 
+#include "kron.h"
+
 float X_coef[] = {
     0, 0, 1, 0,
     1, 0, 0, 0
 };
 
 float Y_coef[] = {
-    0, 0, 0, -1,
-    0, 1, 0, 0
+    0, 0, 0, 1,
+    0, -1, 0, 0
 };
 float Z_coef[] = {
-    0, 0, 1, 0,
-    1, 0, 0, 0
+    1, 0, 0, 0,
+    0, 0, -1, 0
 };
 
 float H_coef[] = {
@@ -56,7 +58,7 @@ namespace Gates {
     af::array Z = af::array(2, 2, (af::cfloat*) Z_coef);
 
     // Hadamard Gate
-    af::array H = (1 / sqrt(2)) * af::array(2, 2, (af::cfloat*) H_coef);
+    af::array H = (1/sqrt(2)) * af::array(2, 2, (af::cfloat*) H_coef);
 
     // Identity Gate
     af::array Id = af::array(2, 2, (af::cfloat*) Id_coef);
@@ -72,4 +74,35 @@ namespace Gates {
 
     // T-Dagger Gate
     af::array TDagger = af::array(2, 2, (af::cfloat*) TDagger_coef);
+}
+
+af::array generateGate(af::array gate, int numQubits, int a) {
+  // identity = 1
+  af::array id = af::identity(2, 2, c32);
+  af::array K;
+
+  for (int i = 0; i < numQubits; i++) {
+    if (i == 0) {
+      if (a == 0) {
+        K = gate;
+      } else {
+        K = id;
+      }
+    } else if (i == a) {
+      try {
+        K = kron(K, gate);
+      } catch (const std::exception& e) {
+        std::cout << e.what();
+      }
+
+    } else {
+      try {
+        K = kron(K, id);
+      } catch (const std::exception& e) {
+        std::cout << e.what();
+      }
+    }
+  }
+
+  return K;
 }

@@ -1,46 +1,32 @@
 #include <arrayfire.h>
-
-#include "kron.h"
+#include <iostream>
 #include "gates.h"
-#include "helper.h"
+#include "quantum.h"
+#include "kron.h"
 
 using namespace af;
 
-class QuantumRegister {
-    private:
-       array amplitudes;
-       int numQubits;
-       bool measured = false;
-    public:
-        QuantumRegister(int n) {
-            numQubits = n;
-            // The number of amplitudes needed is 2^n = 2 << (n - 1),
-            // Where N is the number of qubits. The constant(0, n) function
-            // Creates an array of n 0s
-            amplitudes = constant(0, 2 << (n - 1), c32);
-            // Set the probability of getting all zeros when measured to 1
-            amplitudes(0) = 1;
-        }
+int main(int argc, char** argv) {
+  //af::info();
 
-        void applyGate(array gate) {
-            amplitudes = matmul(gate, amplitudes);
-        }
+  QReg q(3);
 
-        int measure() {
-            array probabilities = pow(abs(amplitudes), 2);
+  q.applyGate(Gates::H, 0);
+  q.applyGate(Gates::H, 1);
+  q.applyGate(Gates::H, 2);
 
-            return select(probabilities);
-        }
-};
+  float results[8] = {0,0,0,0,0,0,0,0};
 
-int main(int argc, char **argv) {
-    // af::info();
-    int count = 0;
+  for (int i = 0; i < 500; i++) {
+    results[q.measure()]++;
+  }
 
-    QuantumRegister q(1);
-    q.applyGate(Gates::H);
-    count += q.measure();
-    
+  for (int i = 0; i < 8; i++) {
+    std::cout << (results[i] / 500) << " ";
+  }
 
-    return 0;
+  std::cout << std::endl;
+  
+
+  return 0;
 }

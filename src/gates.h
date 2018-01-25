@@ -15,4 +15,6 @@ namespace Gates {
     extern af::array TDagger;
 }
 
+af::array generateGate(af::array gate, int numQubits, int a);
+
 #endif

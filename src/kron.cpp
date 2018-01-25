@@ -12,7 +12,7 @@ array kron(array A, array B) {
     array K(dims, c32); 
 
     for (int i = 0; i < m * p; i++) {
-        gfor(seq j, n * q) {
+        for(int j = 0; j < n * q; j++) {
             K(i, j) = A(floor(i / p), floor(j / p)) * B(i % p, j % q);
         }
     }
