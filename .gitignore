@@ -20,6 +20,8 @@
 *.gch
 *.pch
 
+
+.vscode 
 # Libraries
 *.lib
 *.a
