@@ -1,0 +1,15 @@
+{
+  "name": "qasm-parser",
+  "version": "1.0.0",
+  "description": "A Parser for IBM OPENQASM 2.0",
+  "main": "index.js",
+  "repository": "github.com/adamisntdead/qcgpu",
+  "author": "Adam Kelly",
+  "license": "MIT",
+  "dependencies": {
+    "pegjs": "^0.10.0"
+  },
+  "scripts": {
+    "build": "pegjs -o parser.js src/grammar.pegjs"
+  }
+}
