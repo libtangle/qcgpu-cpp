@@ -55,6 +55,8 @@ Some other considerations for the future development of this software, and the s
 
 Can also max at 30 qubits, or the number storage will have to be changed
 
+`grammar.pegjs` needs to be formatted and parts rewritten, conditionals not implemented yet.
+
 ## License
 
 This software is licensed under the MIT licence (see `LICENSE.md`)

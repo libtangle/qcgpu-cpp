@@ -7,10 +7,21 @@ PROGRAM
   }
  
 EXPRESSION 
- = e:EXPR _ SEMICOLON _ COMMENT* _ {return e}
+ = COMMENT _ {return null}
+ / e:EXPR _ SEMICOLON _ COMMENT* _ {return e}
+ / e:GATE _ COMMENT* _ {return e}
  
 EXPR 
- = INCLUDE / REG / CNOT_GATE / UNITARY_GATE
+ = INCLUDE 
+ / MEASURE
+ / RESET
+ / BARRIER
+ / REG 
+ / CNOT_GATE 
+ / UNITARY_GATE 
+ / OPAQUE_GATE
+ / GATE 
+ / APPLY_GATE 
  
 VERSION = "OPENQASM" _ major:INT "." minor:INT SEMICOLON
   { return major + "." + minor}
@@ -30,56 +41,125 @@ REG = type:("creg"/"qreg") _ name:LOWERCAMELCASE _ "[" _ n:INT _ "]"
   
 CNOT_GATE = "CX" _ a:ARGUMENT _ "," _ b:ARGUMENT
   { return {
-  	type: "cnot",
+  	type: "application",
+    name: 'cnot',
     argument: [a,b]
   }}
   
-UNITARY_GATE = "U" _ "(" _ theta:MATH_EXPR _ "," _ phi:MATH_EXPR _ "," _ lambda:MATH_EXPR _ ")" _ ARGUMENT
-  { return {
+MEASURE = "measure" _ a:ARGUMENT _ "->" _ b:CARGUMENT
+  {return {
+  	type: "measure",
+    arguments: [a, b]
+  }}
+  
+RESET = "reset" _ a:ARGUMENT
+  {return {
+  	type: "reset",
+    arguments: a
+  }}
+  
+BARRIER = "barrier" _ a:ARGUMENT_LIST
+  {return {
+  	type: "reset",
+    arguments: a
+  }}
+
+OPAQUE_GATE = "opaque" _ name:LOWERCAMELCASE _ params:("(" _ ps:ARGUMENT_LIST _ ")" {return ps})? _ args:ARGUMENT_LIST 
+  {return {
   	type: "gate",
-    data : [theta, phi, lambda],
-    argument: 3
+    name: name,
+    argument: args,
+    params: params,
+    body: []
+  }}
+  
+GATE = "gate" _ name:LOWERCAMELCASE _ params:("(" _ ps:ARGUMENT_LIST _ ")" {return ps})? _ args:ARGUMENT_LIST _ "{" _ expr:EXPRESSION* _ "}"
+  {return {
+  	type: "gate",
+    name: name,
+    argument: args,
+    params: params || [],
+    body: expr.filter(function(x) {
+    	return x !== null
+    })
+  }}
+  
+APPLY_GATE = name:LOWERCAMELCASE _ params:("(" _ ps:MATH_EXPR_LIST _ ")" {return ps})? _ args:ARGUMENT_LIST
+  {return {
+  	type: 'application',
+    name: name,
+    params: params || [],
+    argument: args
+  }}
+  
+UNITARY_GATE = "U" _ "(" _ params:MATH_EXPR_LIST _ ")" _ a:ARGUMENT
+  { return {
+  	type: "unitary-gate",
+    params: params,
+    argument: a
   }}
 
 QUBIT = reg:LOWERCAMELCASE _ "[" _ index:INT _ "]" 
   { return {
   	type: "qubit",
-    data: reg,
+    name: reg,
+    argument: index
+  }}
+  
+BIT = reg:LOWERCAMELCASE _ "[" _ index:INT _ "]" 
+  { return {
+  	type: "bit",
+    name: reg,
     argument: index
   }}
   
 ARGUMENT = (QUBIT/LOWERCAMELCASE)
+
+ARGUMENT_LIST 
+  = h:ARGUMENT _ "," _ t:ARGUMENT_LIST  {return [h].concat(t)}
+  / ARGUMENT
+  
+CARGUMENT = (BIT/LOWERCAMELCASE)
   
 // MATH EXPRESSION ==========================
+MATH_EXPR_LIST
+  = h:MATH_EXPR _ "," _ t: MATH_EXPR_LIST {return [h].concat(t)}
+  / MATH_EXPR
+
 MATH_EXPR
   = additive
 
 additive
-  = _ left:subtractive _ "+" _ right:additive { return left + right; }
+  = _ left:subtractive _ "+" _ right:additive { return left + "+" + right; }
   / subtractive
 
 subtractive
-  = left:multiplicative _ "-" _ right:additive { return left - right }
+  = left:multiplicative _ "-" _ right:additive { return left + "-" + right }
   / multiplicative
 
 multiplicative
-  = left:exponential _ "*" _ right:additive { return left * right; }
+  = left:divisable _ "*" _ right:additive { return left + "*" + right }
+  / divisable
+
+divisable
+  = left: exponential _ "/" _ right:additive { return left + "/" + right }
   / exponential
 
 exponential
-  = left: negative _ "^" _ right:additive { return Math.pow(left, right) }
+  = left: negative _ "^" _ right:additive { return "pow(" + left + ", " + right + ")" }
   / negative
 
 negative
-  = "-" _ right:func { return -right }
+  = "-" _ right:func { return "-" + right }
   / func
 
 func
-  = op:unaryop _ "(" _ exp:additive _ ")" { return op(exp) }
+  = op:UNARYOP _ "(" _ exp:additive _ ")" _ { return op + "(" + exp + ")" }
   / primary
   
 primary
-  = number
+  = NUMBER
+  / LOWERCAMELCASE
   / "(" additive:additive ")" { return additive; }
 
 // UTILITIES ================================
@@ -95,19 +175,18 @@ LOWERCAMELCASE = f:[a-z] r:[a-zA-Z0-9]* {return f + r.join("")}
 
 UPPERCAMELCASE = f:[A-Z] r:[a-zA-Z0-9]* {return f + r.join("")}
 
-
-number "real"
+NUMBER "real"
   = ("pi" / "PI" / "Pi") { return Math.PI }
   / INT
   / digits:[0-9]+ { return parseInt(digits.join(""), 10); }
 
-unaryop
-  = "sin" { return Math.sin } 
-  / "cos" { return Math.cos }
-  / "tan" { return Math.tan }
-  / "exp" { return Math.exp }
-  / ("ln" / "log") { return Math.log }
-  / "sqrt" { return Math.sqrt }
+UNARYOP
+  = "sin"
+  / "cos"
+  / "tan"
+  / "exp"
+  / ("ln" / "log") {return "log"}
+  / "sqrt"
 
 // optional whitespace
 _  = [ \t\r\n]*
