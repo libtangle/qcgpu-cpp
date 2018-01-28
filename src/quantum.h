@@ -2,8 +2,8 @@
 #define QUANTUM_H_
 
 #include <arrayfire.h>
-
-class QReg {
+namespace QC {
+ class QReg {
  private:
   af::array amplitudes;
   int numQubits;
@@ -15,5 +15,7 @@ class QReg {
   int measure();
   af::array getAmplitudes();
 };
+
+}
 
 #endif
