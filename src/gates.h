@@ -17,6 +17,8 @@ namespace QC {
 
     af::array generateGate(af::array gate, int numQubits, int a);
 
+    af::array generateUnitaryGate(float theta, float phi, float lambda);
+    
 }
 
 #endif

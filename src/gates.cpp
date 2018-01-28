@@ -106,4 +106,25 @@ namespace QC {
 
     return K;
   }
+
+  af::array generateUnitaryGate(float theta, float phi, float lambda) {
+    /* 
+      e^{-i(\phi+\lambda)/2}\cos(\theta/2) & -e^{-i(\phi-\lambda)/2}\sin(\theta/2) \\
+      e^{i(\phi-\lambda)/2}\sin(\theta/2) & e^{i(\phi+\lambda)/2}\cos(\theta/2)
+    */
+
+    std::complex<float> i(0, 1);
+    
+    std::complex<float> a = std::exp(-i * (phi + lambda) / 2.0f) * std::cos(theta / 2);
+    std::complex<float> b = - std::exp(-i * (phi - lambda) / 2.0f) * std::sin(theta / 2);
+    std::complex<float> c = std::exp(i * (phi - lambda) / 2.0f) * std::sin(theta / 2);
+    std::complex<float> d = std::exp(i * (phi + lambda) / 2.0f) * std::cos(theta / 2);
+
+    std::complex<float> arr_coef[] = {
+      a, c,
+      b, d
+    };
+
+    return af::array(2, 2, (af::cfloat*) arr_coef);
+  }
 }
