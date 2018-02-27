@@ -18,7 +18,7 @@ This is currently a work in progress, not suitable for use.
 To build this project simply:
 
 ```
-
+mkdir build
 cd build
 cmake ..
 make
