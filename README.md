@@ -1,3 +1,9 @@
+-------------------------------------
+# **NOTE:** THIS REPOSITORY IS NOT MAINTAINED / FINISHED, AND KEPT ONLY FOR ARCHIVAL REASONS
+-------------------------------------
+
+<br><br><br><br><br><br><br><br><br><br><br>
+
 # QCGPU
 
 > An Open Source, GPU Accelerated, Quantum Computer Simulator
